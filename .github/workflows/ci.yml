@@ -11,19 +11,12 @@ jobs:
       run:
         working-directory: client/meetplan-client
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Build Angular
-        run: npm run build
+      - run: npm ci
+      - run: npm run build
 
   backend-test:
     runs-on: ubuntu-latest
@@ -31,19 +24,10 @@ jobs:
       run:
         working-directory: server
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Lint
-        run: npm run lint --if-present
-
-      - name: Test
-        run: npm test --if-present
+      - run: npm ci
+      - run: npm run lint --if-present
+      - run: npm test --if-present
