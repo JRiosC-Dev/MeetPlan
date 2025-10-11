@@ -4,11 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "start": "node index.js",
-  "dev": "nodemon index.js",
+  "build": "tsc",
+  "start": "node dist/main.js",
+  "dev": "ts-node-dev src/main.ts",
   "lint": "echo \"no lint yet\" && exit 0",
   "test": "echo \"no tests yet\" && exit 0"
-},
+}
+,
   "keywords": [],
   "author": "",
   "license": "ISC",
