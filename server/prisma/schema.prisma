@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model attachments {
+  id          String    @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  meeting_id  String?   @db.Uuid
+  task_id     String?   @db.Uuid
+  uploader_id String    @db.Uuid
+  filename    String
+  url         String
+  mime_type   String?
+  size_bytes  BigInt?
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  meetings    meetings? @relation(fields: [meeting_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tasks       tasks?    @relation(fields: [task_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users       users     @relation(fields: [uploader_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+}
+
+model labels {
+  id             String           @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  name           String           @unique
+  color          String?
+  created_at     DateTime         @default(now()) @db.Timestamptz(6)
+  meeting_labels meeting_labels[]
+  task_labels    task_labels[]
+}
+
+model meeting_labels {
+  meeting_id String   @db.Uuid
+  label_id   String   @db.Uuid
+  labels     labels   @relation(fields: [label_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  meetings   meetings @relation(fields: [meeting_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([meeting_id, label_id])
+}
+
+model meeting_participants {
+  meeting_id   String                     @db.Uuid
+  user_id      String                     @db.Uuid
+  role         participant_role_enum      @default(participant)
+  invited_at   DateTime                   @default(now()) @db.Timestamptz(6)
+  responded_at DateTime?                  @db.Timestamptz(6)
+  response     participant_response_enum?
+  meetings     meetings                   @relation(fields: [meeting_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users        users                      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([meeting_id, user_id])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model meetings {
+  id                               String                 @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  owner_id                         String                 @db.Uuid
+  created_by                       String?                @db.Uuid
+  title                            String
+  description                      String?
+  location                         String?
+  start_at                         DateTime               @db.Timestamptz(6)
+  end_at                           DateTime               @db.Timestamptz(6)
+  status                           meeting_status_enum    @default(scheduled)
+  created_at                       DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at                       DateTime               @default(now()) @db.Timestamptz(6)
+  attachments                      attachments[]
+  meeting_labels                   meeting_labels[]
+  meeting_participants             meeting_participants[]
+  users_meetings_created_byTousers users?                 @relation("meetings_created_byTousers", fields: [created_by], references: [id], onUpdate: NoAction)
+  users_meetings_owner_idTousers   users                  @relation("meetings_owner_idTousers", fields: [owner_id], references: [id], onUpdate: NoAction)
+  notifications                    notifications[]
+  tasks                            tasks[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model notifications {
+  id           String                     @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  user_id      String                     @db.Uuid
+  meeting_id   String?                    @db.Uuid
+  task_id      String?                    @db.Uuid
+  channel      notification_channel_enum
+  template     notification_template_enum
+  scheduled_at DateTime                   @db.Timestamptz(6)
+  sent_at      DateTime?                  @db.Timestamptz(6)
+  status       notification_status_enum   @default(scheduled)
+  payload      Json?
+  created_at   DateTime                   @default(now()) @db.Timestamptz(6)
+  meetings     meetings?                  @relation(fields: [meeting_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tasks        tasks?                     @relation(fields: [task_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users        users                      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model task_activity {
+  id         BigInt   @id @default(autoincrement())
+  task_id    String   @db.Uuid
+  actor_id   String?  @db.Uuid
+  action     String
+  details    Json?
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  users      users?   @relation(fields: [actor_id], references: [id], onUpdate: NoAction)
+  tasks      tasks    @relation(fields: [task_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model task_labels {
+  task_id  String @db.Uuid
+  label_id String @db.Uuid
+  labels   labels @relation(fields: [label_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tasks    tasks  @relation(fields: [task_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([task_id, label_id])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model tasks {
+  id                             String             @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  meeting_id                     String?            @db.Uuid
+  assignee_id                    String?            @db.Uuid
+  created_by                     String?            @db.Uuid
+  title                          String
+  description                    String?
+  status                         task_status_enum   @default(pending)
+  priority                       task_priority_enum @default(medium)
+  due_at                         DateTime?          @db.Timestamptz(6)
+  completed_at                   DateTime?          @db.Timestamptz(6)
+  deleted_at                     DateTime?          @db.Timestamptz(6)
+  created_at                     DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at                     DateTime           @default(now()) @db.Timestamptz(6)
+  attachments                    attachments[]
+  notifications                  notifications[]
+  task_activity                  task_activity[]
+  task_labels                    task_labels[]
+  users_tasks_assignee_idTousers users?             @relation("tasks_assignee_idTousers", fields: [assignee_id], references: [id], onUpdate: NoAction)
+  users_tasks_created_byTousers  users?             @relation("tasks_created_byTousers", fields: [created_by], references: [id], onUpdate: NoAction)
+  meetings                       meetings?          @relation(fields: [meeting_id], references: [id], onUpdate: NoAction)
+}
+
+model users {
+  id                                  String                 @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  email                               String                 @unique @db.Citext
+  password_hash                       String                 @db.VarChar(512)
+  full_name                           String
+  role                                role_enum
+  is_active                           Boolean                @default(true)
+  timezone                            String?                @default("UTC")
+  created_at                          DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at                          DateTime               @default(now()) @db.Timestamptz(6)
+  attachments                         attachments[]
+  meeting_participants                meeting_participants[]
+  meetings_meetings_created_byTousers meetings[]             @relation("meetings_created_byTousers")
+  meetings_meetings_owner_idTousers   meetings[]             @relation("meetings_owner_idTousers")
+  notifications                       notifications[]
+  task_activity                       task_activity[]
+  tasks_tasks_assignee_idTousers      tasks[]                @relation("tasks_assignee_idTousers")
+  tasks_tasks_created_byTousers       tasks[]                @relation("tasks_created_byTousers")
+}
+
+enum meeting_status_enum {
+  scheduled
+  completed
+  cancelled
+}
+
+enum notification_channel_enum {
+  email
+  in_app
+}
+
+enum notification_status_enum {
+  scheduled
+  sent
+  failed
+  cancelled
+}
+
+enum notification_template_enum {
+  meeting_reminder
+  task_due
+  task_assigned
+}
+
+enum participant_response_enum {
+  accepted
+  declined
+  tentative
+}
+
+enum participant_role_enum {
+  participant
+  moderator
+  observer
+}
+
+enum role_enum {
+  user
+  admin
+}
+
+enum task_priority_enum {
+  low
+  medium
+  high
+  urgent
+}
+
+enum task_status_enum {
+  pending
+  in_progress
+  completed
+  blocked
+}
