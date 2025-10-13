@@ -3,6 +3,7 @@ import authRoutes from './modules/auth/auth.routes';
 import userRoutes from './modules/users/user.routes';
 import { authMiddleware } from './middlewares/auth.middleware';
 import meetingRoutes from './modules/meetings/meeting.routes';
+import meetingParticipantRoutes from './modules/meeting-participants/meeting-participant.routes';
 
 const app = express();
 app.use(express.json());
@@ -13,6 +14,6 @@ app.use('/auth', authRoutes);
 // Rutas protegidas
 app.use('/users', authMiddleware, userRoutes);
 app.use('/meetings', authMiddleware, meetingRoutes);
-// más adelante: app.use('/tasks', authMiddleware, taskRoutes);
+app.use('/meetings/:meetingId/participants', authMiddleware, meetingParticipantRoutes);
 
 export default app;
