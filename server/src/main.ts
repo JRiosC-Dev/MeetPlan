@@ -1,12 +1,7 @@
-import express from "express";
+import dotenv from 'dotenv';
+dotenv.config();
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+import app from './app';
 
-app.get("/", (_req, res) => {
-  res.send("Hello from MeetPlan backend 🚀");
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`API running on http://localhost:${port}`));

@@ -4,13 +4,12 @@
   "description": "",
   "main": "dist/main.js",
   "scripts": {
-  "build": "tsc",
-  "start": "node dist/main.js",
-  "dev": "ts-node-dev src/main.ts",
-  "lint": "echo \"no lint yet\" && exit 0",
-  "test": "echo \"no tests yet\" && exit 0"
-}
-,
+    "build": "tsc",
+    "start": "node dist/main.js",
+    "dev": "ts-node-dev src/main.ts",
+    "lint": "echo \"no lint yet\" && exit 0",
+    "test": "echo \"no tests yet\" && exit 0"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -24,7 +23,9 @@
     "prisma": "^6.17.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.7.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
