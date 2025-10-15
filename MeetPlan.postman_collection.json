@@ -1,0 +1,138 @@
+{
+  "info": {
+    "name": "MeetPlan API",
+    "_postman_id": "12345678-abcd-efgh-ijkl-1234567890ab",
+    "description": "Colección de endpoints para probar Auth, Users, Meetings, Participants y Tasks",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@meetplan.io\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": { "raw": "http://localhost:3000/auth/login", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["auth", "login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:3000/users", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["users"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Meetings",
+      "item": [
+        {
+          "name": "Create Meeting",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Sprint Planning\",\n  \"description\": \"Planificación del sprint 5\",\n  \"location\": \"Zoom\",\n  \"startAt\": \"2025-10-15T14:00:00Z\",\n  \"endAt\": \"2025-10-15T15:00:00Z\"\n}"
+            },
+            "url": { "raw": "http://localhost:3000/meetings", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["meetings"] }
+          }
+        },
+        {
+          "name": "List Meetings",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:3000/meetings", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["meetings"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Meeting Participants",
+      "item": [
+        {
+          "name": "Add Participant",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"uuid-del-usuario\",\n  \"role\": \"moderator\"\n}"
+            },
+            "url": { "raw": "http://localhost:3000/meetings/{{meetingId}}/participants", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["meetings", "{{meetingId}}", "participants"] }
+          }
+        },
+        {
+          "name": "List Participants",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:3000/meetings/{{meetingId}}/participants", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["meetings", "{{meetingId}}", "participants"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "Create Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Preparar presentación\",\n  \"description\": \"Slides para la reunión\",\n  \"assigneeId\": \"uuid-del-usuario\",\n  \"priority\": \"high\",\n  \"dueAt\": \"2025-10-20T15:00:00Z\"\n}"
+            },
+            "url": { "raw": "http://localhost:3000/meetings/{{meetingId}}/tasks", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["meetings", "{{meetingId}}", "tasks"] }
+          }
+        },
+        {
+          "name": "List Tasks",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:3000/meetings/{{meetingId}}/tasks", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["meetings", "{{meetingId}}", "tasks"] }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "token", "value": "" },
+    { "key": "meetingId", "value": "" }
+  ]
+}
