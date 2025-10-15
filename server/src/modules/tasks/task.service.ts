@@ -1,5 +1,8 @@
 // src/modules/tasks/task.service.ts
 import { prisma } from '../../lib/prisma';
+import { TaskActivityService } from '../task-activity/task-activity.service';
+
+const activityService = new TaskActivityService();
 
 export class TaskService {
   async createTask(meetingId: string, data: {
@@ -10,7 +13,7 @@ export class TaskService {
     priority?: string;
     createdBy: string;
   }) {
-    return prisma.tasks.create({
+    const task = await prisma.tasks.create({
       data: {
         meeting_id: meetingId,
         title: data.title,
@@ -21,6 +24,16 @@ export class TaskService {
         created_by: data.createdBy,
       },
     });
+
+    // Log activity
+    await activityService.logActivity(task.id, data.createdBy, 'created', {
+      title: data.title,
+      assigneeId: data.assigneeId,
+      priority: data.priority,
+      dueAt: data.dueAt,
+    });
+
+    return task;
   }
 
   async listTasks(meetingId: string) {
@@ -43,15 +56,19 @@ export class TaskService {
     });
   }
 
-  async updateTask(id: string, data: Partial<{
-    title: string;
-    description: string;
-    status: string;
-    priority: string;
-    dueAt: Date;
-    assigneeId: string;
-  }>) {
-    return prisma.tasks.update({
+  async updateTask(
+    id: string,
+    data: Partial<{
+      title: string;
+      description: string;
+      status: string;
+      priority: string;
+      dueAt: Date;
+      assigneeId: string;
+    }>,
+    actorId?: string
+  ) {
+    const task = await prisma.tasks.update({
       where: { id },
       data: {
         title: data.title,
@@ -62,9 +79,19 @@ export class TaskService {
         assignee_id: data.assigneeId,
       },
     });
+
+    // Log activity
+    await activityService.logActivity(id, actorId || null, 'updated', data);
+
+    return task;
   }
 
-  async deleteTask(id: string) {
-    return prisma.tasks.delete({ where: { id } });
+  async deleteTask(id: string, actorId?: string) {
+    const task = await prisma.tasks.delete({ where: { id } });
+
+    // Log activity
+    await activityService.logActivity(id, actorId || null, 'deleted');
+
+    return task;
   }
 }

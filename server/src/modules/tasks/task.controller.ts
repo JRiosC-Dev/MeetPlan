@@ -15,7 +15,7 @@ export class TaskController {
         assigneeId: req.body.assigneeId,
         dueAt: req.body.dueAt ? new Date(req.body.dueAt) : undefined,
         priority: req.body.priority,
-        createdBy: user.sub,
+        createdBy: user.sub, // 👈 se usa para log de actividad
       });
       res.status(201).json(task);
     } catch (err: any) {
@@ -36,12 +36,14 @@ export class TaskController {
   }
 
   async update(req: Request, res: Response) {
-    const task = await service.updateTask(req.params.id, req.body);
+    const user = (req as any).user;
+    const task = await service.updateTask(req.params.id, req.body, user.sub); // 👈 pasamos actorId
     res.json(task);
   }
 
   async delete(req: Request, res: Response) {
-    await service.deleteTask(req.params.id);
+    const user = (req as any).user;
+    await service.deleteTask(req.params.id, user.sub); // 👈 pasamos actorId
     res.json({ message: 'Task deleted' });
   }
 }
