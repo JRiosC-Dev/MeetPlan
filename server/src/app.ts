@@ -7,6 +7,7 @@ import meetingParticipantRoutes from './modules/meeting-participants/meeting-par
 import taskRoutes from './modules/tasks/task.routes';
 import taskActivityRoutes from './modules/task-activity/task-activity.routes';
 import labelRoutes from './modules/labels/label.routes';
+import notificationRoutes from './modules/notifications/notification.routes';
 
 
 
@@ -23,6 +24,7 @@ app.use('/meetings/:meetingId/participants', authMiddleware, meetingParticipantR
 app.use('/meetings/:meetingId/tasks', authMiddleware, taskRoutes);
 app.use('/tasks/:taskId/activity', authMiddleware, taskActivityRoutes);
 app.use('/labels', labelRoutes);
+app.use('/notifications', notificationRoutes);
 
 
 export default app;
